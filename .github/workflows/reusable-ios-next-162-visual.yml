@@ -1,0 +1,54 @@
+name: Reusable iOS Next 1.6.2 Visual Acceptance (unsigned)
+
+on:
+  workflow_call:
+    inputs:
+      tooling_ref:
+        description: "Exact reviewed central commit SHA, same as referenced workflow SHA"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios-next-162-visual:
+    runs-on: xcode-27
+    timeout-minutes: 120
+    steps:
+      - name: Checkout public sanitized caller source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout pinned XcodeBuilds tooling
+        uses: actions/checkout@v4
+        with:
+          repository: Bambis-Lab/XcodeBuilds-
+          ref: ${{ inputs.tooling_ref }}
+          path: .xcodebuilds-tools
+          persist-credentials: false
+      - name: Execute iOS Next isolated visual acceptance
+        shell: bash
+        run: bash .xcodebuilds-tools/scripts/integrations/ios-next/xb05_visual.sh
+      - name: Publish named screenshots and gallery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: IOSNext-1.6.2-V01-V04-LightDark-56
+          path: |
+            build/screenshots/
+            build/xb05-acceptance.json
+            build/xb05-index.json
+            build/xb05-environment.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Publish bounded diagnostic logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: IOSNext-1.6.2-XB05-Diagnostics
+          path: |
+            build/xb05-logs/
+            build/xb05-acceptance.json
+          if-no-files-found: ignore
+          retention-days: 3
