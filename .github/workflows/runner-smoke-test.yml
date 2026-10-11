@@ -36,6 +36,8 @@ jobs:
           swift --version | tee -a xcode-environment.log
       - name: Build and test synthetic Swift package
         run: swift test --package-path fixtures/swift-smoke
+      - name: Compile native XB-05 pixel comparison validator
+        run: swiftc scripts/integrations/ios-next/verify_distinct.swift -o "$RUNNER_TEMP/xb05-distinct-check"
       - name: Write environment provenance
         if: always()
         run: |
