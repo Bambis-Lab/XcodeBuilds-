@@ -22,8 +22,8 @@ def chunk(name, payload):
 def make_png(seed):
     rng = random.Random(seed)
     w, h = 160, 160
-    body = b"".join(b"\\x00" + rng.randbytes(w*3) for _ in range(h))
-    return (b"\\x89PNG\\r\\n\\x1a\\n" +
+    body = b"".join(b"\x00" + rng.randbytes(w*3) for _ in range(h))
+    return (b"\x89PNG\r\n\x1a\n" +
             chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)) +
             chunk(b"IDAT", zlib.compress(body)) + chunk(b"IEND", b""))
 
