@@ -114,6 +114,8 @@ done
 python3 Scripts/package_improvement_screenshots.py
 python3 .xcodebuilds-tools/scripts/integrations/ios-next/verify_gallery.py \
   --root build/screenshots --report build/xb05-acceptance.json
+swift .xcodebuilds-tools/scripts/integrations/ios-next/verify_distinct.swift \
+  --root build/screenshots
 python3 .xcodebuilds-tools/scripts/artifacts/index.py \
   --root build/screenshots --output build/xb05-index.json
 python3 .xcodebuilds-tools/scripts/artifacts/write_metadata.py \
