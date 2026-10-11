@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "required_states": [
+    "factory-disconnected",
+    "keychain-error",
+    "vpn-no-profile"
+  ],
+  "shots": [
+    {
+      "file": "factory-offline.png",
+      "state": "factory-disconnected"
+    },
+    {
+      "file": "keychain-error.png",
+      "state": "keychain-error"
+    },
+    {
+      "file": "vpn-no-profile.png",
+      "state": "vpn-no-profile"
+    }
+  ]
+}

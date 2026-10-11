@@ -1,0 +1,52 @@
+name: Xcode 27 Runner Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'foundation/**']
+    paths:
+      - '.github/workflows/runner-smoke-test.yml'
+      - 'fixtures/swift-smoke/**'
+      - 'scripts/artifacts/**'
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xcode-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  xcode27-smoke:
+    runs-on: xcode-27
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify Xcode and runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version | tee xcode-environment.log
+          grep -Eq '^Xcode 27(\.|$)' xcode-environment.log
+          xcrun simctl list devices available | tee -a xcode-environment.log
+          swift --version | tee -a xcode-environment.log
+      - name: Build and test synthetic Swift package
+        run: swift test --package-path fixtures/swift-smoke
+      - name: Write environment provenance
+        if: always()
+        run: |
+          python3 scripts/artifacts/write_metadata.py --output .xb-output/environment.json --project swift-smoke --runner xcode-27
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcode27-smoke-evidence
+          path: |
+            xcode-environment.log
+            .xb-output/environment.json
+          if-no-files-found: warn
+          retention-days: 7

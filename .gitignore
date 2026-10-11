@@ -1,0 +1,9 @@
+.DS_Store
+.build/
+.swiftpm/
+.xb-output/
+.xcodebuilds-tools/
+__pycache__/
+*.pyc
+*.xcresult
+DerivedData/

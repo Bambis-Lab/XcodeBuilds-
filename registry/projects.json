@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "id": "swift-smoke",
+      "description": "Synthetic Swift Package; no real app source",
+      "platforms": [
+        "swift-package"
+      ],
+      "profile": "swift-package",
+      "source_repository": "Bambis-Lab/XcodeBuilds-",
+      "source_path": "fixtures/swift-smoke",
+      "signing": "disabled",
+      "enabled": true
+    },
+    {
+      "id": "ios-next",
+      "description": "Reserved for XB-05; no source copied or build triggered",
+      "platforms": [
+        "ios",
+        "ipados"
+      ],
+      "profile": "ios",
+      "source_repository": "nicofroeba16-cell/ha-ios-next-ios",
+      "source_path": null,
+      "signing": "disabled",
+      "enabled": false
+    }
+  ]
+}

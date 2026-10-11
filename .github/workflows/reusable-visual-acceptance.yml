@@ -1,0 +1,88 @@
+name: Reusable Visual Acceptance (unsigned)
+
+on:
+  workflow_call:
+    inputs:
+      tooling_ref:
+        type: string
+        required: true
+      project_kind:
+        type: string
+        required: true
+      source_path:
+        type: string
+        required: true
+      scheme:
+        type: string
+        required: true
+      destination:
+        type: string
+        default: 'platform=iOS Simulator,name=iPhone 18 Pro Max'
+      manifest:
+        description: "Caller-repo JSON screenshot filename/state manifest"
+        type: string
+        required: true
+      screenshot_directory:
+        description: "Directory containing test-produced, correctly named PNGs"
+        type: string
+        required: true
+      export_raw_attachments:
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Bambis-Lab/XcodeBuilds-
+          ref: ${{ inputs.tooling_ref }}
+          path: .xcodebuilds-tools
+          persist-credentials: false
+      - name: Execute actual UI tests
+        env:
+          XB_PROJECT_KIND: ${{ inputs.project_kind }}
+          XB_SOURCE_PATH: ${{ inputs.source_path }}
+          XB_SCHEME: ${{ inputs.scheme }}
+          XB_DESTINATION: ${{ inputs.destination }}
+          XB_CONFIGURATION: Debug
+        run: python3 .xcodebuilds-tools/scripts/build/run.py test
+      - name: Export raw XCTest attachments
+        if: ${{ always() && inputs.export_raw_attachments }}
+        run: python3 .xcodebuilds-tools/scripts/screenshots/export_xcresult.py
+      - name: Validate named screenshots, states, duplicates
+        if: success()
+        env:
+          XB_SCREENSHOTS: ${{ inputs.screenshot_directory }}
+          XB_MANIFEST: ${{ inputs.manifest }}
+        run: |
+          python3 .xcodebuilds-tools/scripts/screenshots/validate.py --root "$XB_SCREENSHOTS" --manifest "$XB_MANIFEST" --report .xb-output/screenshot-report.json
+      - name: Upload screenshots and evidence
+        if: always()
+        env:
+          XB_SCREENSHOTS: ${{ inputs.screenshot_directory }}
+        run: |
+          mkdir -p .xb-output
+          printf 'named screenshot source: %s\n' "$XB_SCREENSHOTS" > .xb-output/screenshot-source.txt
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xb-visual-acceptance
+          path: |
+            .xb-output/metadata.json
+            .xb-output/logs/
+            .xb-output/Results/
+            .xb-output/raw-attachments/
+            .xb-output/screenshot-report.json
+            .xb-output/screenshot-source.txt
+          if-no-files-found: warn
+          retention-days: 7

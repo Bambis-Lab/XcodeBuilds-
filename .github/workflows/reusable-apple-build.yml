@@ -1,0 +1,62 @@
+name: Reusable Apple Build (unsigned)
+
+on:
+  workflow_call:
+    inputs:
+      tooling_ref:
+        description: "Reviewed full commit SHA of XcodeBuilds tooling; must match workflow ref"
+        required: true
+        type: string
+      project_kind:
+        required: true
+        type: string
+      source_path:
+        required: true
+        type: string
+      scheme:
+        type: string
+        default: ''
+      destination:
+        type: string
+        default: 'generic/platform=iOS Simulator'
+      configuration:
+        type: string
+        default: Debug
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 40
+    steps:
+      - name: Checkout calling repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout approved centralized tooling
+        uses: actions/checkout@v4
+        with:
+          repository: Bambis-Lab/XcodeBuilds-
+          ref: ${{ inputs.tooling_ref }}
+          path: .xcodebuilds-tools
+          persist-credentials: false
+      - name: Build without signing
+        env:
+          XB_PROJECT_KIND: ${{ inputs.project_kind }}
+          XB_SOURCE_PATH: ${{ inputs.source_path }}
+          XB_SCHEME: ${{ inputs.scheme }}
+          XB_DESTINATION: ${{ inputs.destination }}
+          XB_CONFIGURATION: ${{ inputs.configuration }}
+        run: python3 .xcodebuilds-tools/scripts/build/run.py build
+      - name: Export build logs and provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xb-build-report
+          path: |
+            .xb-output/metadata.json
+            .xb-output/logs/
+          if-no-files-found: warn
+          retention-days: 7
