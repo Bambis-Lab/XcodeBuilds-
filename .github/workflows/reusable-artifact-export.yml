@@ -1,0 +1,47 @@
+name: Reusable Artifact Index & Export
+
+on:
+  workflow_call:
+    inputs:
+      tooling_ref:
+        type: string
+        required: true
+      source_artifact:
+        description: "Name of prior uploaded artifact in the SAME workflow run"
+        type: string
+        required: true
+      export_artifact:
+        description: "Resulting artifact name"
+        type: string
+        default: xb-indexed-export
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Bambis-Lab/XcodeBuilds-
+          ref: ${{ inputs.tooling_ref }}
+          path: .xcodebuilds-tools
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.source_artifact }}
+          path: .xb-input
+      - name: Index all files with SHA256 and refuse symlinks
+        run: |
+          python3 .xcodebuilds-tools/scripts/artifacts/index.py --root .xb-input --output .xb-export/index.json
+          cp -R .xb-input .xb-export/files
+      - name: Upload indexed bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.export_artifact }}
+          path: .xb-export
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: true

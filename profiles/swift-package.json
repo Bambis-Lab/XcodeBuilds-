@@ -1,0 +1,11 @@
+{
+  "id": "swift-package",
+  "platform": "swift-package",
+  "runner": "xcode-27",
+  "project_kind": "swift-package",
+  "default_destination": null,
+  "configuration": "Debug",
+  "code_signing_allowed": false,
+  "default_test_timeout_minutes": 30,
+  "release_enabled": false
+}

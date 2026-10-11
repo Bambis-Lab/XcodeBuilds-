@@ -1,0 +1,11 @@
+{
+  "id": "ios",
+  "platform": "ios",
+  "runner": "xcode-27",
+  "project_kind": "xcode-project",
+  "default_destination": "generic/platform=iOS Simulator",
+  "configuration": "Debug",
+  "code_signing_allowed": false,
+  "default_test_timeout_minutes": 30,
+  "release_enabled": false
+}
