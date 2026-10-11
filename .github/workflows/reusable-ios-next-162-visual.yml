@@ -13,12 +13,14 @@ permissions:
 
 jobs:
   ios-next-162-visual:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Bambis-Lab/ios-next-build' }}
     runs-on: xcode-27
     timeout-minutes: 120
     steps:
       - name: Checkout public sanitized caller source
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Checkout pinned XcodeBuilds tooling
         uses: actions/checkout@v4
