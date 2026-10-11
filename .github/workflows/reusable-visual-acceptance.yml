@@ -87,3 +87,4 @@ jobs:
             ${{ inputs.screenshot_directory }}
           if-no-files-found: warn
           retention-days: 7
+          include-hidden-files: true

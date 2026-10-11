@@ -38,3 +38,4 @@ jobs:
           path: ${{ runner.temp }}/screenshot-report.json
           if-no-files-found: ignore
           retention-days: 7
+          include-hidden-files: true

@@ -50,3 +50,4 @@ jobs:
             .xb-output/environment.json
           if-no-files-found: warn
           retention-days: 7
+          include-hidden-files: true

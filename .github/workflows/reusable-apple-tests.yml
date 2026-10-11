@@ -59,3 +59,4 @@ jobs:
             .xb-output/Results/
           if-no-files-found: warn
           retention-days: 7
+          include-hidden-files: true
