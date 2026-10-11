@@ -31,3 +31,10 @@ jobs:
       tooling_ref: ${{ github.sha }}
       project_kind: swift-package
       source_path: fixtures/swift-smoke
+  indexed-export:
+    needs: [swift-build]
+    uses: ./.github/workflows/reusable-artifact-export.yml
+    with:
+      tooling_ref: ${{ github.sha }}
+      source_artifact: xb-build-report
+      export_artifact: xb-indexed-smoke

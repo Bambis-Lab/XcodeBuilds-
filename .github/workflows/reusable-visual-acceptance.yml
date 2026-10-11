@@ -84,5 +84,6 @@ jobs:
             .xb-output/raw-attachments/
             .xb-output/screenshot-report.json
             .xb-output/screenshot-source.txt
+            ${{ inputs.screenshot_directory }}
           if-no-files-found: warn
           retention-days: 7
