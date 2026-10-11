@@ -5,9 +5,19 @@ set -euo pipefail
 test "${GITHUB_REPOSITORY:-}" = "Bambis-Lab/ios-next-build" || {
   echo "::error::XB05_SOURCE_REPOSITORY_MISMATCH"; exit 1;
 }
-test "${GITHUB_REF_NAME:-}" = "visual/ios-next-162-v01-v04" || {
-  echo "::error::XB05_SOURCE_BRANCH_MISMATCH"; exit 1;
-}
+# An isolated same-repo PR into the visual branch is a testable, read-only
+# alternative when Actions cannot be manually dispatched from a non-default branch.
+if [[ "${GITHUB_EVENT_NAME:-}" == "pull_request" ]]; then
+  [[ "${GITHUB_BASE_REF:-}" == "visual/ios-next-162-v01-v04" &&
+     "${GITHUB_HEAD_REF:-}" == xb05/acceptance-* ]] || {
+    echo "::error::XB05_UNEXPECTED_PULL_REQUEST_SCOPE"; exit 1;
+  }
+else
+  [[ "${GITHUB_EVENT_NAME:-}" == "push" &&
+     "${GITHUB_REF_NAME:-}" == "visual/ios-next-162-v01-v04" ]] || {
+    echo "::error::XB05_SOURCE_BRANCH_MISMATCH"; exit 1;
+  }
+fi
 BASE="32d436ff6c9d71a5618b6106a4672dde4a639e1e"
 git fetch --no-tags --depth=1 origin "$BASE"
 BASE="$BASE" python3 - <<'PY'
